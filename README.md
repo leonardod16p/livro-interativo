@@ -1,3 +1,5 @@
+O projeto ainda não está completo 
+
 ## Acesse o livro pela página inicial (com animação)
 [Abrir o site](https://leonardod16p.github.io/livro-interativo/index.html)
 

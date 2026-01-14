@@ -326,61 +326,69 @@
         /* Tópicos nas Folhas - USANDO SVG foreignObject para manter proporção */
                 /* Tópicos nas Folhas - TAMANHO AUMENTADO */
 
-        @keyframes bloom {
-            0% { 
-                opacity: 0; 
-                transform: scale(0) translateY(20px); 
-            }
-            60% { 
-                opacity: 1; 
-                transform: scale(1.1) translateY(-5px); 
-            }
-            100% { 
-                opacity: 1; 
-                transform: scale(1) translateY(0); 
-            }
-        }
-
-
-                        .leaf-topic {
-            /* Mantenha as propriedades visuais base (cor, borda, etc.) */
-            background: rgba(20, 20, 20, 0.95);
-            color: #ffffff;
-            border-radius: 8px;
-            font-weight: bold;
-            border: 1px solid rgba(79, 195, 247, 0.7);
-            cursor: pointer;
+        .leaf-topic {
+            /* Visual de Alta Qualidade */
+            background: rgba(15, 23, 42, 0.95); /* Azul noturno profundo, mais elegante que preto */
+            color: #f1f5f9;
+            border: 1px solid rgba(56, 189, 248, 0.5); /* Azul ciano sutil */
+            border-radius: 6px;
+            
+            /* Tipografia Limpa */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; /* Fonte sans-serif é mais legível pequena */
+            font-size: 11px; /* Tamanho fixo, sem scale */
+            font-weight: 600;
+            -webkit-font-smoothing: antialiased; /* Crucial para nitidez */
+            -moz-osx-font-smoothing: grayscale;
+            
+            /* Layout e Espaçamento */
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-            padding: 6px 10px;
-            font-size: 12px;
+            padding: 4px 12px;
             white-space: nowrap;
-            width: auto;
-            height: 30px;
-            backdrop-filter: blur(2px);
+            width: 100%;       /* Ocupa o foreignObject */
+            height: 100%;      /* Ocupa o foreignObject */
+            box-sizing: border-box;
             
-            /* Alterações para a animação */
-            opacity: 0; /* Começa invisível */
-            transform: scale(0); /* Começa minúsculo */
-            pointer-events: none; /* Não clicável enquanto oculto */
-            transition: background 0.3s ease, border 0.3s ease, color 0.3s ease; /* Transição apenas para hover */
+            /* Efeitos */
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            
+            /* Estado Inicial (Invisível) */
+            opacity: 0;
+            transform: translateY(10px); /* Apenas translação, sem scale para não embaçar */
+            pointer-events: none;
         }
 
+        /* Estado Visível com Animação */
         .leaf-topic.visible {
-            /* A animação roda apenas quando a classe é adicionada */
-            animation: bloom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation: bloom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             pointer-events: all;
         }
 
+        /* Hover refinado */
         .leaf-topic:hover {
-            background: rgba(79, 195, 247, 0.9);
-            border-color: rgba(255, 255, 255, 0.9);
-            transform: scale(1.1) !important; /* !important para sobrescrever a animação base */
+            background: rgba(56, 189, 248, 0.9);
+            border-color: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.4);
+            transform: translateY(-2px); /* Movimento sutil */
             z-index: 100;
         }
 
+        /* Atualize o Keyframe para não usar scale(0) que pode bugar texto */
+        @keyframes bloom {
+            0% { 
+                opacity: 0; 
+                transform: translateY(15px) scale(0.8); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
         /* Animação de transição para capítulos */
         .chapter-transition {
             position: fixed;

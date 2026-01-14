@@ -1074,62 +1074,86 @@
             updateTrunkSlotAvailability();
         }
 
+        // --- NOVAS VARIÁVEIS GLOBAIS ---
+        let totalProgressSteps = 0;
+        const totalGameSteps = 7; // 3 Raízes + 4 Tronco
+
+        // --- NOVA FUNÇÃO AUXILIAR ---
+        function getElements() {
+            // Pega todos os tópicos NA ORDEM do HTML
+            const topics = Array.from(document.querySelectorAll('.leaf-topic'));
+            // Pega todas as folhas decorativas (ellipses)
+            const leaves = Array.from(document.querySelectorAll('.leaves-group ellipse'));
+            return { topics, leaves };
+        }
+
+        // --- NOVA FUNÇÃO DE PROGRESSO UNIFICADA ---
+        function advanceProgress() {
+            totalProgressSteps++;
+            
+            const { topics, leaves } = getElements();
+            
+            // 1. Define quantos tópicos revelar por passo (aprox 3 por vez)
+            const topicsPerStep = Math.ceil(topics.length / totalGameSteps);
+            
+            // Calcula o intervalo de tópicos para este passo
+            const startIndex = (totalProgressSteps - 1) * topicsPerStep;
+            const endIndex = startIndex + topicsPerStep;
+            
+            // 2. Revela os tópicos (do básico ao avançado)
+            const topicsToReveal = topics.slice(startIndex, endIndex);
+            
+            topicsToReveal.forEach((topic, i) => {
+                setTimeout(() => {
+                    topic.classList.add('visible');
+                }, i * 200); // Efeito cascata suave
+            });
+
+            // 3. Revela folhas decorativas proporcionalmente
+            const leavesPerStep = Math.ceil(leaves.length / totalGameSteps);
+            const leafStartIndex = (totalProgressSteps - 1) * leavesPerStep;
+            const leafEndIndex = leafStartIndex + leavesPerStep;
+            
+            const leavesToReveal = leaves.slice(leafStartIndex, leafEndIndex);
+            
+            leavesToReveal.forEach((leaf, i) => {
+                // Delay aleatório para parecer natural
+                setTimeout(() => {
+                    leaf.classList.add('visible');
+                }, Math.random() * 600);
+            });
+        }
+
+        // --- SUAS FUNÇÕES ANTIGAS (AGORA ATUALIZADAS) ---
+
         function handleRootQuestionPlacement() {
             rootQuestionsPlaced++;
+            
+            // Chama a animação nova
+            advanceProgress();
             
             if (rootQuestionsPlaced === 3) {
                 currentStage = 2;
                 enableTrunkSlots();
-                // Revela mais folhas na base
-                revealLeaves(15); // Aumentado de 8 para 15
+                // Removemos o revealLeaves() antigo daqui pois o advanceProgress() já cuida disso
             }
         }
-        
+
         function handleTrunkAbstractionPlacement(abstractionType) {
             trunkAbstractionsPlaced++;
             placedAbstractions.push(abstractionType);
             
-            // Aumenta significativamente a quantidade de folhas reveladas a cada etapa
-            const leavesToReveal = 15 + trunkAbstractionsPlaced * 20; // De 5 para 20
-            revealLeaves(leavesToReveal);
+            // Chama a animação nova
+            advanceProgress();
             
             updateTrunkSlotAvailability();
             
             if (trunkAbstractionsPlaced === 4) {
                 currentStage = 3;
                 document.getElementById('seasonToggle').classList.add('active');
-                
-                setTimeout(() => {
-                    const allLeaves = document.querySelectorAll('.leaves-group ellipse');
-                    const allTopics = document.querySelectorAll('.leaf-topic');
-                    
-                    // Ordenar folhas por posição Y (da base para o topo)
-                    const leavesWithY = Array.from(allLeaves).map((leaf, index) => ({
-                        element: leaf,
-                        y: parseFloat(leaf.getAttribute('cy')),
-                        index: index
-                    }));
-                    
-                    // Ordenar por Y decrescente (da base para o topo) com prioridade para folhas mais altas
-                    leavesWithY.sort((a, b) => {
-                        // Dá mais peso às folhas mais altas (menor Y)
-                        const aWeight = a.y * 0.7; // Folhas mais altas aparecem antes
-                        const bWeight = b.y * 0.7;
-                        return aWeight - bWeight;
-                    });
-                    
-                    leavesWithY.forEach((leafData, i) => {
-                        setTimeout(() => {
-                            leafData.element.classList.add('visible');
-                            if (allTopics[leafData.index]) {
-                                allTopics[leafData.index].classList.add('visible');
-                            }
-                        }, i * 10); // Acelerado de 15 para 10ms
-                    });
-                }, 500);
+                // A animação final agora é automática e progressiva
             }
         }
-
         function revealLeaves(count) {
             const leaves = document.querySelectorAll('.leaves-group ellipse');
             const topics = document.querySelectorAll('.leaf-topic');

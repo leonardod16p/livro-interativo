@@ -1086,49 +1086,97 @@
         let totalProgressSteps = 0;
         const totalGameSteps = 7; // 3 Raízes + 4 Tronco
 
-        // --- NOVA FUNÇÃO AUXILIAR ---
-        function getElements() {
-            // Pega todos os tópicos NA ORDEM do HTML
+        // Variável para armazenar o mapa de conexões
+        let topicLeafMap = [];
+
+        // Função com lógica de EXCLUSIVIDADE (resolve o problema do tópico 9 e 10)
+        function mapTopicsToLeaves() {
             const topics = Array.from(document.querySelectorAll('.leaf-topic'));
-            // Pega todas as folhas decorativas (ellipses)
-            const leaves = Array.from(document.querySelectorAll('.leaves-group ellipse'));
-            return { topics, leaves };
+            // Criamos uma cópia da lista de folhas para podermos remover as usadas
+            let availableLeaves = Array.from(document.querySelectorAll('.leaves-group ellipse'));
+            
+            topicLeafMap = topics.map(topic => {
+                const foreignObj = topic.closest('foreignObject');
+                const topicX = parseFloat(foreignObj.getAttribute('x')) + parseFloat(foreignObj.getAttribute('width'))/2;
+                const topicY = parseFloat(foreignObj.getAttribute('y')) + parseFloat(foreignObj.getAttribute('height'))/2;
+                
+                let closestLeafIndex = -1;
+                let minDistance = Infinity;
+                
+                // Procura apenas nas folhas DISPONÍVEIS
+                availableLeaves.forEach((leaf, index) => {
+                    const leafX = parseFloat(leaf.getAttribute('cx'));
+                    const leafY = parseFloat(leaf.getAttribute('cy'));
+                    
+                    const dist = Math.sqrt(Math.pow(leafX - topicX, 2) + Math.pow(leafY - topicY, 2));
+                    
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestLeafIndex = index;
+                    }
+                });
+                
+                let selectedLeaf = null;
+                
+                // Se achou uma folha, associa e REMOVE da lista de disponíveis
+                if (closestLeafIndex !== -1) {
+                    selectedLeaf = availableLeaves[closestLeafIndex];
+                    // O segredo está aqui: removemos essa folha da lista para o próximo tópico não pegar a mesma
+                    availableLeaves.splice(closestLeafIndex, 1); 
+                }
+                
+                return {
+                    topic: topic,
+                    leaf: selectedLeaf
+                };
+            });
         }
 
-        // --- NOVA FUNÇÃO DE PROGRESSO UNIFICADA ---
         function advanceProgress() {
             totalProgressSteps++;
             
-            const { topics, leaves } = getElements();
+            if (topicLeafMap.length === 0) mapTopicsToLeaves();
             
-            // 1. Define quantos tópicos revelar por passo (aprox 3 por vez)
-            const topicsPerStep = Math.ceil(topics.length / totalGameSteps);
+            const totalTopics = topicLeafMap.length;
+            const itemsPerStep = Math.ceil(totalTopics / totalGameSteps);
             
-            // Calcula o intervalo de tópicos para este passo
-            const startIndex = (totalProgressSteps - 1) * topicsPerStep;
-            const endIndex = startIndex + topicsPerStep;
+            const startIndex = (totalProgressSteps - 1) * itemsPerStep;
+            const endIndex = startIndex + itemsPerStep;
             
-            // 2. Revela os tópicos (do básico ao avançado)
-            const topicsToReveal = topics.slice(startIndex, endIndex);
+            // 1. Revelar Tópicos e suas Folhas Exclusivas
+            const itemsToReveal = topicLeafMap.slice(startIndex, endIndex);
             
-            topicsToReveal.forEach((topic, i) => {
+            itemsToReveal.forEach((item, i) => {
+                if (item.leaf) {
+                    setTimeout(() => {
+                        item.leaf.classList.add('visible');
+                    }, i * 150);
+                }
+                
                 setTimeout(() => {
-                    topic.classList.add('visible');
-                }, i * 200); // Efeito cascata suave
+                    item.topic.classList.add('visible');
+                }, i * 150 + 100);
             });
 
-            // 3. Revela folhas decorativas proporcionalmente
-            const leavesPerStep = Math.ceil(leaves.length / totalGameSteps);
-            const leafStartIndex = (totalProgressSteps - 1) * leavesPerStep;
-            const leafEndIndex = leafStartIndex + leavesPerStep;
+            // 2. REENCHIMENTO DE VOLUME (Resolve o problema da árvore "pelada")
+            // Pegamos todas as folhas que AINDA não estão visíveis
+            const extraLeaves = document.querySelectorAll('.leaves-group ellipse:not(.visible)');
             
-            const leavesToReveal = leaves.slice(leafStartIndex, leafEndIndex);
+            // Aumentei de 2 para 15 folhas extras por turno para encher bem a árvore
+            const randomAmount = 15; 
             
-            leavesToReveal.forEach((leaf, i) => {
-                // Delay aleatório para parecer natural
+            // Embaralha e pega um lote para exibir
+            const leavesArray = Array.from(extraLeaves);
+            // Um mini-embaralhamento rápido
+            leavesArray.sort(() => Math.random() - 0.5);
+            
+            const fillLeaves = leavesArray.slice(0, randomAmount);
+            
+            fillLeaves.forEach((leaf) => {
+                // Delay aleatório maior para parecer natural durante todo o turno
                 setTimeout(() => {
                     leaf.classList.add('visible');
-                }, Math.random() * 600);
+                }, Math.random() * 800);
             });
         }
 

@@ -27,4 +27,4 @@ Eu escrevi muito pouco código. A maioria esmagadora das linhas de código foram
 
 ## Futuros Projetos
 
-Talvez eu faça um livro focado completamente em matemática pura (análise, algebra linear e/ou álgebra). Na minha visão, nesses casos a ideia de intuição precisa ser generalizada para a noção de contexto. 
+Talvez eu faça um livro focado completamente em matemática pura (análise, algebra linear e/ou álgebra). Na minha visão, intuição parece ser um jargão matemático para uma classe mais geral de ferramentas cognitivas de compreensão. No livro, uma das ferramentas é o uso de "intuição visual/geométrica". A intuição geométrica nada mais é, nesse sentido, que uma ferramenta cognitiva que leva um problema de um contexto qualquer (algébrico, por exemplo) para o contexto geométrico. De maneira mais geral, acredito que o sentido que os matemáticos costumam dar para a intuição precisa ser generalizada para a noção de contexto.  

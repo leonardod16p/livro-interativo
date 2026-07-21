@@ -22,7 +22,7 @@ Em algum momento da história da matemática moderna, houve um movimento de conf
 
 ## Ferramentas Utilizadas
 
-Eu escrevi muito pouco código. A maioria esmagadora das linhas de código foram geradas por IA. Foram mais ou menos 2-3 semanas. Eu tinha boa parte das notas de aula no meu caderno. 
+Eu escrevi muito pouco código. A maioria esmagadora das linhas de código foram geradas por IA. Utilizei as versões gratuitas do Gemini e do Claude. Foram mais ou menos 2-3 semanas. Eu tinha boa parte das notas de aula no meu caderno. 
 
 
 ## Futuros Projetos

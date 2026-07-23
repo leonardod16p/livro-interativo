@@ -1,5 +1,8 @@
 O projeto ainda não está completo 
 
+No momento, estou reformulando o projeto para estende-lo conceitualmente em alguns sentidos. De forma geral, transportarei o livro para um jogo.
+
+
 ## Acesse o livro pela página inicial (com animação)
 [Abrir o site](https://leonardod16p.github.io/livro-interativo/index.html)
 

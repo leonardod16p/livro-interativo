@@ -8,9 +8,10 @@
   --parchment: #f3ead9;
   --parchment-dim: rgba(243, 234, 217, 0.7);
 
-  --world-perguntas: #e8a33d;   /* âmbar, lanterna, curiosidade */
+  --world-perguntas: #e8a33d;   /* âmbar, lanterna, curiosidade — grupo das raízes */
   --world-intuicao: #9b7fd4;    /* violeta, onírico */
   --world-fisica: #4fc3e0;      /* ciano, precisão */
+  --world-analogias: #5ccf9b;   /* verde, ponte entre ideias */
   --world-abstracao: #d45c9b;   /* magenta, arte */
 
   --font-display: 'Spectral', Georgia, serif;
@@ -86,8 +87,15 @@ canvas {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--world-perguntas), var(--world-intuicao), var(--world-fisica), var(--world-abstracao));
+  background: linear-gradient(90deg, var(--world-perguntas), var(--world-intuicao), var(--world-fisica), var(--world-analogias), var(--world-abstracao));
   transition: width 0.25s ease-out;
+}
+
+.phase-count {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 /* ---------- Instruções (canto inferior esquerdo) ---------- */
@@ -375,10 +383,11 @@ canvas {
   margin-top: 6px;
 }
 
-/* ---------- Rodapé do HUD (reiniciar progresso) ---------- */
+/* ---------- Rodapé do HUD (reiniciar progresso + zoom) ---------- */
 .hud-bottom {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 .reset-link {
@@ -396,4 +405,52 @@ canvas {
 
 .reset-link:hover {
   opacity: 1;
+}
+
+.zoom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zoom-btn {
+  width: 38px;
+  height: 38px;
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--parchment);
+  background: rgba(11, 22, 32, 0.65);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.zoom-btn:hover {
+  opacity: 1;
+  background: rgba(11, 22, 32, 0.9);
+}
+
+/* ---------- Rótulos flutuantes na copa (um por passo de lição concluído) ---------- */
+.leaf-label {
+  background: rgba(11, 22, 32, 0.88);
+  color: var(--parchment);
+  border: 1px solid var(--accent, #e8a33d);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 11px;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  pointer-events: none;
+  animation: leaf-label-in 0.5s ease-out;
+}
+
+@keyframes leaf-label-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.85); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

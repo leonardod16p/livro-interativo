@@ -2,41 +2,38 @@ import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useKeyboard } from '../hooks/useKeyboard'
-import { pointOnSpiral, clampLateral } from '../utils/spiral'
+import { pointOnTreePath, clampLateral } from '../utils/treePath'
 import { useGameStore } from '../state/useGameStore'
-import { WORLDS } from '../data/worlds'
+import { PHASES } from '../data/phases'
 
-const CLIMB_SPEED = 0.05     // progresso (0..1) por segundo, subindo/descendo
-const LATERAL_SPEED = 2.4    // unidades por segundo, andando de lado na trilha
+const CLIMB_SPEED = 0.045 // progresso (0..1) por segundo, subindo/descendo
+const LATERAL_SPEED = 0.6 // unidades por segundo, andando de lado agarrado à casca
+const STEP_INTERVAL = 0.32 // segundos entre sons de passo, enquanto anda
 
-// respeita o base path configurado no vite.config.js (funciona local e no GitHub Pages)
 const MODEL_URL = `${import.meta.env.BASE_URL}models/fox.glb`
 
-// O modelo original é bem maior que o mundo do jogo — este fator o encolhe
-// para a altura ficar compatível com a trilha (~1 unidade de altura).
-const MODEL_SCALE = 0.012
+// Árvore real é bem menor/mais fina que o mundo abstrato do projeto base
+// (tronco com raio ~0.5-0.9 contra 2.2 antes) — a raposa precisa encolher
+// na mesma proporção pra não parecer gigante colada no tronco.
+const MODEL_SCALE = 0.006
 
-// Se o personagem parecer andar "de costas" (olhando pra trás do
-// movimento), troque este valor para 0 — depende de como o modelo
-// escolhido foi exportado.
 const MODEL_FACING_OFFSET = Math.PI
 
-export function Character({ playChime }) {
+export function Character({ playChime, playStep }) {
   const groupRef = useRef()
   const modelRef = useRef()
   const keys = useKeyboard()
   const currentYaw = useRef(0)
   const currentAction = useRef('Survey')
+  const stepTimer = useRef(0)
 
   const { scene, animations } = useGLTF(MODEL_URL)
   const { actions } = useAnimations(animations, modelRef)
 
-  // liga a animação "parado" assim que o modelo carrega
   useEffect(() => {
     actions?.Survey?.reset().fadeIn(0.3).play()
   }, [actions])
 
-  // o modelo importado não vem com sombra ligada por padrão
   useEffect(() => {
     scene.traverse((child) => {
       if (child.isMesh) {
@@ -46,7 +43,6 @@ export function Character({ playChime }) {
     })
   }, [scene])
 
-  // faz a transição suave entre as animações disponíveis (Survey / Walk)
   const playAction = (name) => {
     if (currentAction.current === name || !actions?.[name]) return
     actions[currentAction.current]?.fadeOut(0.25)
@@ -83,17 +79,17 @@ export function Character({ playChime }) {
       store.setProgress(t)
       store.setLateral(lateral)
 
-      // checa se cruzou o limiar de algum mundo
-      for (const world of WORLDS) {
+      // checa se cruzou o limiar de alguma fase, subindo
+      for (const phase of PHASES) {
         const justEntered =
-          forward && t >= world.t && !store.completedMissions.includes(world.id)
-        if (justEntered && store.activeMission !== world.id) {
-          const alreadyOpenedOnce = store._lastOpened === world.id
+          forward && t >= phase.t && !store.completedMissions.includes(phase.id)
+        if (justEntered && store.activeMission !== phase.id) {
+          const alreadyOpenedOnce = store._lastOpened === phase.id
           if (!alreadyOpenedOnce) {
-            store.openMission(world.id)
-            store.showToast(world.title, world.color)
-            useGameStore.setState({ _lastOpened: world.id })
-            playChime?.(220 + WORLDS.indexOf(world) * 60)
+            store.openMission(phase.id)
+            store.showToast(phase.title, phase.color)
+            useGameStore.setState({ _lastOpened: phase.id })
+            playChime?.(220 + PHASES.indexOf(phase) * 40)
           }
         }
       }
@@ -101,9 +97,18 @@ export function Character({ playChime }) {
 
     playAction(moving ? 'Walk' : 'Survey')
 
-    const { position, yaw } = pointOnSpiral(t, lateral)
+    if (moving) {
+      stepTimer.current += delta
+      if (stepTimer.current >= STEP_INTERVAL) {
+        stepTimer.current = 0
+        playStep?.()
+      }
+    } else {
+      stepTimer.current = STEP_INTERVAL // primeiro passo toca logo ao começar a andar de novo
+    }
 
-    // suaviza a rotação (menor caminho angular)
+    const { position, yaw } = pointOnTreePath(t, lateral)
+
     let diff = yaw - currentYaw.current
     diff = Math.atan2(Math.sin(diff), Math.cos(diff))
     currentYaw.current += diff * Math.min(1, delta * 8)
@@ -119,8 +124,7 @@ export function Character({ playChime }) {
       <group ref={modelRef} scale={MODEL_SCALE} rotation={[0, MODEL_FACING_OFFSET, 0]}>
         <primitive object={scene} />
       </group>
-      {/* pequeno brilho mágico que acompanha o personagem — combina com a árvore */}
-      <pointLight position={[0, 0.85, 0.2]} color="#e8a33d" intensity={1} distance={4} />
+      <pointLight position={[0, 0.5, 0.1]} color="#e8a33d" intensity={1} distance={3} />
     </group>
   )
 }

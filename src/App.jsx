@@ -8,7 +8,7 @@ import { useGameStore } from './state/useGameStore'
 import { useGameAudio } from './audio/useGameAudio'
 
 export default function App() {
-  const { playChime, startAmbient } = useGameAudio()
+  const { playChime, startAmbient, playStep } = useGameAudio()
   const start = useGameStore((s) => s.start)
 
   const handleStart = () => {
@@ -20,7 +20,7 @@ export default function App() {
     <>
       <Canvas shadows camera={{ fov: 55, near: 0.1, far: 200 }}>
         <Suspense fallback={null}>
-          <Scene playChime={playChime} />
+          <Scene playChime={playChime} playStep={playStep} />
         </Suspense>
       </Canvas>
 

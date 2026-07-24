@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/arvore-do-conhecimento-completa/',
+  base: '/livro-interativo/', 
 })
